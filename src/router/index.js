@@ -1,4 +1,5 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
+import cookie from '@/utils/cookie'
 
 const router = createRouter({
   history: createWebHashHistory(import.meta.env.BASE_URL),
@@ -19,6 +20,15 @@ const router = createRouter({
       component: () => import('../views/RegisterView.vue'),
     },
   ],
+})
+
+router.beforeEach((to, from, next) => {
+  const isLogin = cookie.get('token') ? true : false
+  if (to.path === '/login' || to.path === '/register') {
+    isLogin ? next('/') : next()
+  } else {
+    isLogin ? next() : next('/login')
+  }
 })
 
 export default router
