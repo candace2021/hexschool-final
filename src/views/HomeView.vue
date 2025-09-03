@@ -76,7 +76,7 @@ const addTodo = async () => {
   try {
     await api('post', '/todos/', content.value, { headers: { Authorization: token } })
     content.value.content = ''
-    getTodos()
+    await getTodos()
   } finally {
     isLoading.value = false
   }
@@ -87,7 +87,7 @@ const isChecked = async (id) => {
   isLoading.value = true
   try {
     await api('patch', `/todos/${id}/toggle`, id, { headers: { Authorization: token } })
-    getTodos()
+    await getTodos()
   } finally {
     isLoading.value = false
   }
@@ -107,7 +107,7 @@ const editorSet = async () => {
     }
     await api('put', `/todos/${todoEditor.value.id}`, res, { headers: { Authorization: token } })
     isEditor.value = false
-    getTodos()
+    await getTodos()
   } finally {
     isLoading.value = false
   }
@@ -125,7 +125,7 @@ const deleteTodo = (id) => {
       isLoading.value = true
       try {
         await api('delete', `/todos/${id}`, { headers: { Authorization: token } })
-        getTodos()
+        await getTodos()
       } finally {
         isLoading.value = false
       }
@@ -158,7 +158,12 @@ const isOpen = (item) => {
     </header>
     <div class="todoBox">
       <div class="search">
-        <input type="text" placeholder="新增待辦事項" v-model="content.content" />
+        <input
+          type="text"
+          placeholder="新增待辦事項"
+          v-model="content.content"
+          @keydown.enter.prevent="addTodo()"
+        />
         <button type="button" @click="addTodo()"><span></span></button>
       </div>
       <div class="todos" v-if="datas.length > 0">
@@ -208,7 +213,7 @@ const isOpen = (item) => {
     <div class="editorBox" v-if="isEditor">
       <div class="editorContent">
         <p>修改的 Todo 內容</p>
-        <input type="text" v-model="todoEditor.content" />
+        <input type="text" v-model="todoEditor.content" @keydown.enter.prevent="editorSet()" />
         <div class="btn">
           <button type="button" @click="editorSet()">確認</button>
           <button type="button" class="white" @click="isEditor = false">取消</button>
@@ -225,6 +230,7 @@ const isOpen = (item) => {
 .home {
   width: 100%;
   height: 100%;
+  min-height: 100vh;
   background: url('../assets/images/bg.png') center bottom / cover no-repeat;
   @media (max-width: 767px) {
     background: #ffd370;
